@@ -18,11 +18,11 @@
 import webapp2
 import web2epub
 import StringIO
-token = '/?token=3c461de3c&url='
-token_len = len(token)
 
 class MainPage(webapp2.RequestHandler):
   def get(self):
+    token = '%s?token=3c461de3c&url=' % self.request.path
+    token_len = len(token)
     uri = self.request.path_qs
     process_url = uri[token_len:]
     title = 'make'
