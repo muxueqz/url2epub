@@ -1,0 +1,73 @@
+Metadata-Version: 1.1
+Name: readability-lxml
+Version: 0.3.0.5
+Summary: fast python port of arc90's readability tool
+Home-page: http://github.com/buriy/python-readability
+Author: Yuri Baburov
+Author-email: burchik@gmail.com
+License: Apache License 2.0
+Description: This code is under the Apache License 2.0.  http://www.apache.org/licenses/LICENSE-2.0
+        
+        This is a python port of a ruby port of arc90's readability project
+        
+        http://lab.arc90.com/experiments/readability/
+        
+        In few words,
+        Given a html document, it pulls out the main body text and cleans it up.
+        It also can clean up title based on latest readability.js code.
+        
+        Based on:
+         - Latest readability.js ( https://github.com/MHordecki/readability-redux/blob/master/readability/readability.js )
+         - Ruby port by starrhorne and iterationlabs
+         - Python port by gfxmonk ( https://github.com/gfxmonk/python-readability , based on BeautifulSoup )
+         - Decruft effort to move to lxml ( http://www.minvolai.com/blog/decruft-arc90s-readability-in-python/ )
+         - "BR to P" fix from readability.js which improves quality for smaller texts.
+         - Github users contributions.
+        
+        Installation::
+        
+            easy_install readability-lxml
+            or
+            pip install readability-lxml
+        
+        Usage::
+        
+            from readability.readability import Document
+            import urllib
+            html = urllib.urlopen(url).read()
+            readable_article = Document(html).summary()
+            readable_title = Document(html).short_title()
+        
+        Command-line usage::
+        
+            python -m readability.readability -u http://pypi.python.org/pypi/readability-lxml
+        
+        
+        Using positive/negative keywords example::
+        
+            python -m readability.readability -p intro -n newsindex,homepage-box,news-section -u http://python.org
+        
+        
+        Document() kwarg options:
+        
+         - attributes:
+         - debug: output debug messages
+         - min_text_length:
+         - retry_length:
+         - url: will allow adjusting links to be absolute
+         - positive_keywords: the list of positive search patterns in classes and ids, for example: ["news-item", "block"]
+         - negative_keywords: the list of negative search patterns in classes and ids, for example: ["mysidebar", "related", "ads"]
+        
+        
+        Updates
+        
+         - 0.2.5 Update setup.py for uploading .tar.gz to pypi
+         - 0.2.6 Don't crash on documents with no title
+         - 0.2.6.1 Document.short_title() properly works
+         - 0.3 Added Document.encoding, positive_keywords and negative_keywords
+        
+Platform: UNKNOWN
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python

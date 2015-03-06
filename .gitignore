@@ -1,0 +1,7 @@
+*.swp
+*.pyc
+*.db
+./tmp
+./build
+env
+venv

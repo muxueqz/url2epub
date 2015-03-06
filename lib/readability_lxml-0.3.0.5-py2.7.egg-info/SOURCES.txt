@@ -1,0 +1,16 @@
+README
+setup.cfg
+setup.py
+readability/__init__.py
+readability/cleaners.py
+readability/debug.py
+readability/encoding.py
+readability/htmls.py
+readability/readability.py
+readability_lxml.egg-info/PKG-INFO
+readability_lxml.egg-info/SOURCES.txt
+readability_lxml.egg-info/dependency_links.txt
+readability_lxml.egg-info/requires.txt
+readability_lxml.egg-info/top_level.txt
+tests/__init__.py
+tests/test_article_only.py
