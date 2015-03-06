@@ -20,7 +20,7 @@
 # MA 02110-1301, USA.
 
 from zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED, ZipInfo
-import urllib
+import urllib2
 import sys
 import os.path
 import mimetypes
@@ -139,7 +139,12 @@ def url2epub(urls, title=None, author=None, outfile=None):
 
     for i,url in enumerate(urls):
         print "Reading url no. %s of %s --> %s " % (i+1,nos,url)
-        html = urllib.urlopen(url).read()
+
+        opener = urllib2.build_opener()
+        opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.65 Safari/537.36')]
+        html= opener.open(url).read()
+
+#        html = urllib.urlopen(url).read()
         readable_article = Document(html).summary().encode('utf-8')
         readable_title = Document(html).short_title()
 
@@ -180,7 +185,7 @@ def url2epub(urls, title=None, author=None, outfile=None):
             imgfile = os.path.basename(imgpath)
             filename = 'article_%s_image_%s%s' % (i+1,j+1,os.path.splitext(imgfile)[1])
             if imgpath.lower().startswith("http"):
-                epub.writestr('OEBPS/images/'+filename, urllib.urlopen(imgpath).read())
+                epub.writestr('OEBPS/images/'+filename, urllib2.urlopen(imgpath).read())
                 image['src'] = 'images/'+filename
                 manifest += '<item id="article_%s_image_%s" href="images/%s" media-type="%s"/>\n' % (i+1,j+1,filename,mimetypes.guess_type(filename)[0])
 
