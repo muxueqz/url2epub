@@ -85,7 +85,6 @@ def url2epub(urls, title=None, author=None, outfile=None):
         </metadata>
         <manifest>
           <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
-          <item id="cover" href="cover.html" media-type="application/xhtml+xml"/>
           <item id="cover-image" href="%(front_cover)s" media-type="%(front_cover_type)s"/>
           <item id="css" href="stylesheet.css" media-type="text/css"/>
             %(manifest)s
@@ -94,9 +93,6 @@ def url2epub(urls, title=None, author=None, outfile=None):
             <itemref idref="cover" linear="no"/>
             %(spine)s
         </spine>
-        <guide>
-            <reference href="cover.html" type="cover" title="Cover"/>
-        </guide>
         </package>'''
 
     toc_tpl = u'''<?xml version='1.0' encoding='utf-8'?>
@@ -113,7 +109,6 @@ def url2epub(urls, title=None, author=None, outfile=None):
         <text>%(title)s</text>
       </docTitle>
       <navMap>
-        <navPoint id="navpoint-1" playOrder="1"> <navLabel> <text>Cover</text> </navLabel> <content src="cover.html"/> </navPoint>
         %(toc)s
       </navMap>
     </ncx>'''
@@ -194,13 +189,15 @@ def url2epub(urls, title=None, author=None, outfile=None):
     info['manifest'] = manifest
     info['spine'] = spine
     info['toc']= toc
+    if title == None:
+        info['title'] = cgi.escape(readable_title)
+    ebook_index =  index_tpl % info
 
     # Finally, write the index and toc
     epub.writestr('OEBPS/stylesheet.css', stylesheet_tpl)
-    epub.writestr('OEBPS/Content.opf', index_tpl % info)
+    epub.writestr('OEBPS/Content.opf', ebook_index.encode('utf8'))
     toc = toc_tpl % info
     toc = toc.encode('utf8')
-#    epub.writestr('OEBPS/toc.ncx', toc_tpl % info)
     epub.writestr('OEBPS/toc.ncx', toc)
 
 
