@@ -181,7 +181,7 @@ def url2epub(urls, title=None, author=None, outfile=None):
                 imgfullpath = image["data-src"]
             #Remove query strings from url
             imgpath = urlparse.urlunsplit(urlparse.urlsplit(imgfullpath)[:3]+('','',))
-            print "    Downloading image: %s %s" % (j+1, imgpath)
+#            print "    Downloading image: %s %s" % (j+1, imgpath)
             imgfile = os.path.basename(imgpath)
             filename = 'article_%s_image_%s%s' % (i+1,j+1,os.path.splitext(imgfile)[1])
             if imgpath.lower().startswith("http"):
