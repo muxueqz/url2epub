@@ -29,6 +29,31 @@ import urlparse
 import cgi
 from readability.readability import Document
 from BeautifulSoup import BeautifulSoup,Tag
+from google.appengine.api import urlfetch
+
+#headers = {'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6)Gecko/20091201 Firefox/3.5.6'}
+headers = {'User-agent':'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.65 Safari/537.36'}
+def urldownload(url):
+    for i in range(3):
+      try:
+#        html = urlfetch.fetch(url, headers = {'User-Agent': headers}).content
+#        opener = urllib2.build_opener()
+#        opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.65 Safari/537.36')]
+#        print opener
+#        html= opener.open(url).read()
+
+        req = urllib2.Request(url = url, headers = headers)
+        result = urllib2.urlopen(req).read()
+        # run success conditions here
+        break
+#      except DownloadError:
+#      except OSError:
+#      except urllib2.URLError, e:
+      except Exception, e:
+        print("urlfetch failed!", e)
+        result = ''
+        pass
+    return result
 
 class MyZipFile(ZipFile):
     def writestr(self, name, s, compress=ZIP_DEFLATED):
@@ -137,15 +162,19 @@ def url2epub(urls, title=None, author=None, outfile=None):
     spine = ""
     toc = ""
 
-    for i,url in enumerate(urls):
+    for i, url in enumerate(urls):
         print "Reading url no. %s of %s --> %s " % (i+1,nos,url)
 
-        opener = urllib2.build_opener()
-        opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.65 Safari/537.36')]
-        html= opener.open(url).read()
+
+        html = urldownload(url)
+
+#        print html
+#        exit()
 
 #        html = urllib.urlopen(url).read()
-        readable_article = Document(html).summary().encode('utf-8')
+        #readable_article = Document(html).summary().encode('utf-8')
+        readable_article = html
+        #print html
         readable_title = Document(html).short_title()
 
         manifest += '<item id="article_%s" href="article_%s.html" media-type="application/xhtml+xml"/>\n' % (i+1,i+1)
@@ -159,7 +188,10 @@ def url2epub(urls, title=None, author=None, outfile=None):
         body = soup.html.body
         h1 = Tag(soup, "h1", [("class", "title")])
         h1.insert(0, cgi.escape(readable_title))
-        body.insert(0, h1)
+        try:
+            body.insert(0, h1)
+        except AttributeError:
+            pass
 
         #Add stylesheet path
         head = soup.find('head')
@@ -179,13 +211,16 @@ def url2epub(urls, title=None, author=None, outfile=None):
                 imgfullpath = urlparse.urljoin(url, image["src"])
             elif image.get("data-src"):
                 imgfullpath = image["data-src"]
+            else:
+                print image
+                imgfullpath = ''
             #Remove query strings from url
             imgpath = urlparse.urlunsplit(urlparse.urlsplit(imgfullpath)[:3]+('','',))
 #            print "    Downloading image: %s %s" % (j+1, imgpath)
             imgfile = os.path.basename(imgpath)
             filename = 'article_%s_image_%s%s' % (i+1,j+1,os.path.splitext(imgfile)[1])
             if imgpath.lower().startswith("http"):
-                epub.writestr('OEBPS/images/'+filename, urllib2.urlopen(imgpath).read())
+                epub.writestr('OEBPS/images/'+filename, urldownload(imgpath))
                 image['src'] = 'images/'+filename
                 manifest += '<item id="article_%s_image_%s" href="images/%s" media-type="%s"/>\n' % (i+1,j+1,filename,mimetypes.guess_type(filename)[0])
 
