@@ -20,6 +20,7 @@
 # MA 02110-1301, USA.
 
 from zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED, ZipInfo
+import json
 import urllib2
 import sys
 import os.path
@@ -32,7 +33,9 @@ from BeautifulSoup import BeautifulSoup,Tag
 from google.appengine.api import urlfetch
 
 #headers = {'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6)Gecko/20091201 Firefox/3.5.6'}
-headers = {'User-agent':'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.65 Safari/537.36'}
+headers = {
+    'User-agent': 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.65 Safari/537.36'
+}
 def urldownload(url):
     for i in range(3):
       try:
@@ -72,7 +75,7 @@ def url2epub(urls, title=None, author=None, outfile=None):
     info = dict(title=title,
             author=author,
             rights='Copyright respective page authors',
-            publisher='Rupesh Kumar',
+            publisher='muxueqz',
             ISBN='978-1449921880',
             subject='Blogs',
             description='Articles extracted from blogs for archive purposes',
@@ -166,16 +169,37 @@ def url2epub(urls, title=None, author=None, outfile=None):
         print "Reading url no. %s of %s --> %s " % (i+1,nos,url)
 
 
-        html = urldownload(url)
+#http://note.youdao.com/share/index.html?id=babbc03bec275667f1f1057bb25ac8f4&type=note&from=singlemessage#/
+        parse_url = urlparse.urlparse(url)
+        if parse_url.netloc == 'note.youdao.com':
+            note_id = urlparse.parse_qs(parse_url.query)['id'][0]
+            url ='http://note.youdao.com/yws/public/note/%s?editorType=0' \
+                % note_id
+            print "Reading note.youdao.com url --> %s " % (url)
+            note_json = json.loads(urldownload(url))
+            readable_title = note_json['tl']
+            readable_article = """
+            <!DOCTYPE html><!--[if lt IE 7 ]><html class="ie6" lang="en"><![endif]--><!--[if IE 7 ]><html class="ie7" lang="en"><![endif]--><!--[if IE 8 ]><html class="ie8" lang="en"><![endif]--><!--[if IE 9 ]><html class="ie9" lang="en"><![endif]--><!--[if (gte IE 10)|!(IE)]><!--><html lang="en"><!--<![endif]-->
+            <head><meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1"><meta charset=utf-8><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
+            </head>
+            <body>
+            <div>
+                %s
+            </div>
+            </body>
+            </html>
+            """ % note_json['content'].encode('utf8')
+        else:
+
+            html = urldownload(url)
 
 #        print html
 #        exit()
 
-#        html = urllib.urlopen(url).read()
-        #readable_article = Document(html).summary().encode('utf-8')
-        readable_article = html
-        #print html
-        readable_title = Document(html).short_title()
+            #readable_article = Document(html).summary().encode('utf-8')
+            readable_article = html
+            #print html
+            readable_title = Document(html).short_title()
 
         manifest += '<item id="article_%s" href="article_%s.html" media-type="application/xhtml+xml"/>\n' % (i+1,i+1)
         spine += '<itemref idref="article_%s" />\n' % (i+1)
